@@ -1,0 +1,15 @@
+// valtaris-nucleus/src/nucleus/cli/commands/dev.ts
+
+import { startNucleus } from "../../index";
+
+/**
+ * CLI Dev Command
+ * ----------------
+ * Provides a simple CLI entrypoint for local development.
+ * Delegates to the canonical Nucleus startup function.
+ */
+
+export async function devCommand() {
+  console.log("Starting Nucleus in development mode...");
+  await startNucleus();
+}
