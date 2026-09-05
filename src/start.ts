@@ -1,32 +1,29 @@
-/**
- * Startup entrypoint for the Valtaris control plane.
- * Provides deterministic server initialization, environment
- * loading, and startup sequencing.
- */
+import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
 
-import { Server } from "./server";
+import { renderErrorPage } from "./lib/error-page";
 
-export interface StartupConfig {
-  port: number;
-  metadata: Record<string, unknown>;
-}
-
-export async function start(config: StartupConfig): Promise<void> {
-  const server = new Server({
-    port: config.port,
-    metadata: config.metadata
-  });
-
-  await server.start();
-}
-
-const defaultConfig: StartupConfig = {
-  port: Number(process.env.PORT ?? 3000),
-  metadata: {
-    environment: process.env.NODE_ENV ?? "development"
+const errorMiddleware = createMiddleware().server(async ({ next }) => {
+  try {
+    return await next();
+  } catch (error) {
+    if (error != null && typeof error === "object" && "statusCode" in error) {
+      throw error;
+    }
+    console.error(error);
+    return new Response(renderErrorPage(), {
+      status: 500,
+      headers: { "content-type": "text/html; charset=utf-8" },
+    });
   }
-};
-
-start(defaultConfig).catch(err => {
-  console.error("Fatal startup error:", err);
 });
+
+// Start installs this automatically when src/start.ts is absent; defining the
+// file opts out, so re-add it explicitly to keep server functions protected
+// from cross-site requests.
+const csrfMiddleware = createCsrfMiddleware({
+  filter: (ctx) => ctx.handlerType === "serverFn",
+});
+
+export const startInstance = createStart(() => ({
+  requestMiddleware: [errorMiddleware, csrfMiddleware],
+}));
