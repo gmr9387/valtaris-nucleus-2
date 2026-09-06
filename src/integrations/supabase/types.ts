@@ -464,6 +464,174 @@ export type Database = {
           },
         ]
       }
+      nucleus_errors: {
+        Row: {
+          code: string
+          context: Json | null
+          id: string
+          message: string
+          subsystem: string
+          timestamp: string | null
+        }
+        Insert: {
+          code: string
+          context?: Json | null
+          id: string
+          message: string
+          subsystem: string
+          timestamp?: string | null
+        }
+        Update: {
+          code?: string
+          context?: Json | null
+          id?: string
+          message?: string
+          subsystem?: string
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      nucleus_events: {
+        Row: {
+          context: Json
+          id: string
+          payload: Json
+          source: string
+          timestamp: string | null
+          type: string
+        }
+        Insert: {
+          context: Json
+          id: string
+          payload: Json
+          source: string
+          timestamp?: string | null
+          type: string
+        }
+        Update: {
+          context?: Json
+          id?: string
+          payload?: Json
+          source?: string
+          timestamp?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
+      nucleus_identity: {
+        Row: {
+          actor: Json
+          environment: string
+          id: string
+          project_id: string
+          tenant_id: string
+          timestamp: string | null
+        }
+        Insert: {
+          actor: Json
+          environment: string
+          id: string
+          project_id: string
+          tenant_id: string
+          timestamp?: string | null
+        }
+        Update: {
+          actor?: Json
+          environment?: string
+          id?: string
+          project_id?: string
+          tenant_id?: string
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      nucleus_lineage: {
+        Row: {
+          chain: Json
+          created_at: string | null
+          finalized: boolean | null
+          finalized_at: string | null
+          id: string
+          organization_id: string
+        }
+        Insert: {
+          chain: Json
+          created_at?: string | null
+          finalized?: boolean | null
+          finalized_at?: string | null
+          id?: string
+          organization_id: string
+        }
+        Update: {
+          chain?: Json
+          created_at?: string | null
+          finalized?: boolean | null
+          finalized_at?: string | null
+          id?: string
+          organization_id?: string
+        }
+        Relationships: []
+      }
+      nucleus_subsystems: {
+        Row: {
+          contracts: boolean | null
+          definition: boolean | null
+          events: boolean | null
+          health: boolean | null
+          id: string
+          runtime: boolean | null
+          telemetry: boolean | null
+          timestamp: string | null
+        }
+        Insert: {
+          contracts?: boolean | null
+          definition?: boolean | null
+          events?: boolean | null
+          health?: boolean | null
+          id: string
+          runtime?: boolean | null
+          telemetry?: boolean | null
+          timestamp?: string | null
+        }
+        Update: {
+          contracts?: boolean | null
+          definition?: boolean | null
+          events?: boolean | null
+          health?: boolean | null
+          id?: string
+          runtime?: boolean | null
+          telemetry?: boolean | null
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      nucleus_telemetry: {
+        Row: {
+          id: string
+          level: string
+          message: string
+          metadata: Json | null
+          subsystem: string
+          timestamp: string | null
+        }
+        Insert: {
+          id: string
+          level: string
+          message: string
+          metadata?: Json | null
+          subsystem: string
+          timestamp?: string | null
+        }
+        Update: {
+          id?: string
+          level?: string
+          message?: string
+          metadata?: Json | null
+          subsystem?: string
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
       organization_members: {
         Row: {
           created_at: string
@@ -805,6 +973,84 @@ export type Database = {
           },
         ]
       }
+      workflow_definitions: {
+        Row: {
+          created_at: string | null
+          definition: Json | null
+          description: string | null
+          id: string
+          name: string | null
+          steps: Json | null
+          version: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          definition?: Json | null
+          description?: string | null
+          id: string
+          name?: string | null
+          steps?: Json | null
+          version?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          definition?: Json | null
+          description?: string | null
+          id?: string
+          name?: string | null
+          steps?: Json | null
+          version?: number | null
+        }
+        Relationships: []
+      }
+      workflow_instances: {
+        Row: {
+          completedAt: string | null
+          createdAt: string | null
+          currentStepId: string | null
+          environmentId: string | null
+          id: string
+          metadata: Json | null
+          organizationId: string | null
+          projectId: string | null
+          startedAt: string | null
+          status: string
+          updatedAt: string | null
+          version: number | null
+          workflowId: string | null
+        }
+        Insert: {
+          completedAt?: string | null
+          createdAt?: string | null
+          currentStepId?: string | null
+          environmentId?: string | null
+          id: string
+          metadata?: Json | null
+          organizationId?: string | null
+          projectId?: string | null
+          startedAt?: string | null
+          status?: string
+          updatedAt?: string | null
+          version?: number | null
+          workflowId?: string | null
+        }
+        Update: {
+          completedAt?: string | null
+          createdAt?: string | null
+          currentStepId?: string | null
+          environmentId?: string | null
+          id?: string
+          metadata?: Json | null
+          organizationId?: string | null
+          projectId?: string | null
+          startedAt?: string | null
+          status?: string
+          updatedAt?: string | null
+          version?: number | null
+          workflowId?: string | null
+        }
+        Relationships: []
+      }
       workflow_runs: {
         Row: {
           completed_at: string | null
@@ -871,6 +1117,47 @@ export type Database = {
             columns: ["workflow_id"]
             isOneToOne: false
             referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_step_states: {
+        Row: {
+          completedAt: string | null
+          id: string
+          instanceId: string | null
+          metadata: Json | null
+          output: Json | null
+          startedAt: string | null
+          status: string
+          stepId: string
+        }
+        Insert: {
+          completedAt?: string | null
+          id: string
+          instanceId?: string | null
+          metadata?: Json | null
+          output?: Json | null
+          startedAt?: string | null
+          status?: string
+          stepId: string
+        }
+        Update: {
+          completedAt?: string | null
+          id?: string
+          instanceId?: string | null
+          metadata?: Json | null
+          output?: Json | null
+          startedAt?: string | null
+          status?: string
+          stepId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_step_states_instanceId_fkey"
+            columns: ["instanceId"]
+            isOneToOne: false
+            referencedRelation: "workflow_instances"
             referencedColumns: ["id"]
           },
         ]
@@ -1022,6 +1309,11 @@ export type Database = {
       }
       is_org_member: { Args: { _org: string; _user: string }; Returns: boolean }
       project_org: { Args: { _project: string }; Returns: string }
+      rpc_log_error: { Args: { err: Json }; Returns: undefined }
+      rpc_log_event: { Args: { event: Json }; Returns: undefined }
+      rpc_log_telemetry: { Args: { log: Json }; Returns: undefined }
+      rpc_register_subsystem: { Args: { reg: Json }; Returns: undefined }
+      rpc_store_identity: { Args: { identity: Json }; Returns: undefined }
     }
     Enums: {
       app_role: "owner" | "admin" | "manager" | "operator" | "viewer"
