@@ -464,6 +464,174 @@ export type Database = {
           },
         ]
       }
+      nucleus_errors: {
+        Row: {
+          code: string
+          context: Json | null
+          id: string
+          message: string
+          subsystem: string
+          timestamp: string | null
+        }
+        Insert: {
+          code: string
+          context?: Json | null
+          id: string
+          message: string
+          subsystem: string
+          timestamp?: string | null
+        }
+        Update: {
+          code?: string
+          context?: Json | null
+          id?: string
+          message?: string
+          subsystem?: string
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      nucleus_events: {
+        Row: {
+          context: Json
+          id: string
+          payload: Json
+          source: string
+          timestamp: string | null
+          type: string
+        }
+        Insert: {
+          context: Json
+          id: string
+          payload: Json
+          source: string
+          timestamp?: string | null
+          type: string
+        }
+        Update: {
+          context?: Json
+          id?: string
+          payload?: Json
+          source?: string
+          timestamp?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
+      nucleus_identity: {
+        Row: {
+          actor: Json
+          environment: string
+          id: string
+          project_id: string
+          tenant_id: string
+          timestamp: string | null
+        }
+        Insert: {
+          actor: Json
+          environment: string
+          id: string
+          project_id: string
+          tenant_id: string
+          timestamp?: string | null
+        }
+        Update: {
+          actor?: Json
+          environment?: string
+          id?: string
+          project_id?: string
+          tenant_id?: string
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      nucleus_lineage: {
+        Row: {
+          chain: Json
+          created_at: string | null
+          finalized: boolean | null
+          finalized_at: string | null
+          id: string
+          organization_id: string
+        }
+        Insert: {
+          chain: Json
+          created_at?: string | null
+          finalized?: boolean | null
+          finalized_at?: string | null
+          id?: string
+          organization_id: string
+        }
+        Update: {
+          chain?: Json
+          created_at?: string | null
+          finalized?: boolean | null
+          finalized_at?: string | null
+          id?: string
+          organization_id?: string
+        }
+        Relationships: []
+      }
+      nucleus_subsystems: {
+        Row: {
+          contracts: boolean | null
+          definition: boolean | null
+          events: boolean | null
+          health: boolean | null
+          id: string
+          runtime: boolean | null
+          telemetry: boolean | null
+          timestamp: string | null
+        }
+        Insert: {
+          contracts?: boolean | null
+          definition?: boolean | null
+          events?: boolean | null
+          health?: boolean | null
+          id: string
+          runtime?: boolean | null
+          telemetry?: boolean | null
+          timestamp?: string | null
+        }
+        Update: {
+          contracts?: boolean | null
+          definition?: boolean | null
+          events?: boolean | null
+          health?: boolean | null
+          id?: string
+          runtime?: boolean | null
+          telemetry?: boolean | null
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      nucleus_telemetry: {
+        Row: {
+          id: string
+          level: string
+          message: string
+          metadata: Json | null
+          subsystem: string
+          timestamp: string | null
+        }
+        Insert: {
+          id: string
+          level: string
+          message: string
+          metadata?: Json | null
+          subsystem: string
+          timestamp?: string | null
+        }
+        Update: {
+          id?: string
+          level?: string
+          message?: string
+          metadata?: Json | null
+          subsystem?: string
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
       organization_members: {
         Row: {
           created_at: string
@@ -750,6 +918,382 @@ export type Database = {
           },
         ]
       }
+      workflow_audit_events: {
+        Row: {
+          actor_id: string | null
+          event_type: string
+          id: string
+          occurred_at: string
+          organization_id: string
+          payload: Json | null
+          run_id: string | null
+          workflow_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          event_type: string
+          id?: string
+          occurred_at?: string
+          organization_id: string
+          payload?: Json | null
+          run_id?: string | null
+          workflow_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          event_type?: string
+          id?: string
+          occurred_at?: string
+          organization_id?: string
+          payload?: Json | null
+          run_id?: string | null
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_audit_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_audit_events_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_audit_events_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_definitions: {
+        Row: {
+          created_at: string | null
+          definition: Json | null
+          description: string | null
+          id: string
+          name: string | null
+          steps: Json | null
+          version: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          definition?: Json | null
+          description?: string | null
+          id: string
+          name?: string | null
+          steps?: Json | null
+          version?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          definition?: Json | null
+          description?: string | null
+          id?: string
+          name?: string | null
+          steps?: Json | null
+          version?: number | null
+        }
+        Relationships: []
+      }
+      workflow_instances: {
+        Row: {
+          completedAt: string | null
+          createdAt: string | null
+          currentStepId: string | null
+          environmentId: string | null
+          id: string
+          metadata: Json | null
+          organizationId: string | null
+          projectId: string | null
+          startedAt: string | null
+          status: string
+          updatedAt: string | null
+          version: number | null
+          workflowId: string | null
+        }
+        Insert: {
+          completedAt?: string | null
+          createdAt?: string | null
+          currentStepId?: string | null
+          environmentId?: string | null
+          id: string
+          metadata?: Json | null
+          organizationId?: string | null
+          projectId?: string | null
+          startedAt?: string | null
+          status?: string
+          updatedAt?: string | null
+          version?: number | null
+          workflowId?: string | null
+        }
+        Update: {
+          completedAt?: string | null
+          createdAt?: string | null
+          currentStepId?: string | null
+          environmentId?: string | null
+          id?: string
+          metadata?: Json | null
+          organizationId?: string | null
+          projectId?: string | null
+          startedAt?: string | null
+          status?: string
+          updatedAt?: string | null
+          version?: number | null
+          workflowId?: string | null
+        }
+        Relationships: []
+      }
+      workflow_runs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          error_json: Json | null
+          id: string
+          input_json: Json | null
+          organization_id: string
+          output_json: Json | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["workflow_run_status"]
+          updated_at: string
+          version_id: string
+          workflow_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          error_json?: Json | null
+          id?: string
+          input_json?: Json | null
+          organization_id: string
+          output_json?: Json | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["workflow_run_status"]
+          updated_at?: string
+          version_id: string
+          workflow_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          error_json?: Json | null
+          id?: string
+          input_json?: Json | null
+          organization_id?: string
+          output_json?: Json | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["workflow_run_status"]
+          updated_at?: string
+          version_id?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_runs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_runs_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_runs_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_step_states: {
+        Row: {
+          completedAt: string | null
+          id: string
+          instanceId: string | null
+          metadata: Json | null
+          output: Json | null
+          startedAt: string | null
+          status: string
+          stepId: string
+        }
+        Insert: {
+          completedAt?: string | null
+          id: string
+          instanceId?: string | null
+          metadata?: Json | null
+          output?: Json | null
+          startedAt?: string | null
+          status?: string
+          stepId: string
+        }
+        Update: {
+          completedAt?: string | null
+          id?: string
+          instanceId?: string | null
+          metadata?: Json | null
+          output?: Json | null
+          startedAt?: string | null
+          status?: string
+          stepId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_step_states_instanceId_fkey"
+            columns: ["instanceId"]
+            isOneToOne: false
+            referencedRelation: "workflow_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_steps: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_json: Json | null
+          id: string
+          input_json: Json | null
+          output_json: Json | null
+          run_id: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["workflow_step_status"]
+          step_key: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_json?: Json | null
+          id?: string
+          input_json?: Json | null
+          output_json?: Json | null
+          run_id: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["workflow_step_status"]
+          step_key: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_json?: Json | null
+          id?: string
+          input_json?: Json | null
+          output_json?: Json | null
+          run_id?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["workflow_step_status"]
+          step_key?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_steps_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_versions: {
+        Row: {
+          created_at: string
+          created_by: string
+          definition_json: Json
+          id: string
+          published_at: string | null
+          status: Database["public"]["Enums"]["workflow_version_status"]
+          version_number: number
+          workflow_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          definition_json?: Json
+          id?: string
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["workflow_version_status"]
+          version_number: number
+          workflow_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          definition_json?: Json
+          id?: string
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["workflow_version_status"]
+          version_number?: number
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_versions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflows: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+          status: Database["public"]["Enums"]["workflow_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          status?: Database["public"]["Enums"]["workflow_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          status?: Database["public"]["Enums"]["workflow_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflows_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -765,6 +1309,11 @@ export type Database = {
       }
       is_org_member: { Args: { _org: string; _user: string }; Returns: boolean }
       project_org: { Args: { _project: string }; Returns: string }
+      rpc_log_error: { Args: { err: Json }; Returns: undefined }
+      rpc_log_event: { Args: { event: Json }; Returns: undefined }
+      rpc_log_telemetry: { Args: { log: Json }; Returns: undefined }
+      rpc_register_subsystem: { Args: { reg: Json }; Returns: undefined }
+      rpc_store_identity: { Args: { identity: Json }; Returns: undefined }
     }
     Enums: {
       app_role: "owner" | "admin" | "manager" | "operator" | "viewer"
@@ -791,6 +1340,20 @@ export type Database = {
         | "initial"
       telemetry_severity: "debug" | "info" | "warn" | "error" | "critical"
       telemetry_span_status: "ok" | "error" | "cancelled" | "unset"
+      workflow_run_status:
+        | "pending"
+        | "running"
+        | "completed"
+        | "failed"
+        | "cancelled"
+      workflow_status: "draft" | "active" | "archived"
+      workflow_step_status:
+        | "pending"
+        | "running"
+        | "completed"
+        | "failed"
+        | "skipped"
+      workflow_version_status: "draft" | "published" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -944,6 +1507,22 @@ export const Constants = {
       ],
       telemetry_severity: ["debug", "info", "warn", "error", "critical"],
       telemetry_span_status: ["ok", "error", "cancelled", "unset"],
+      workflow_run_status: [
+        "pending",
+        "running",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
+      workflow_status: ["draft", "active", "archived"],
+      workflow_step_status: [
+        "pending",
+        "running",
+        "completed",
+        "failed",
+        "skipped",
+      ],
+      workflow_version_status: ["draft", "published", "archived"],
     },
   },
 } as const
