@@ -9,7 +9,7 @@
  */
 
 import http from "node:http";
-import { NucleusDBBridge } from "./nucleusDBBridge";
+import { NucleusDBBridge } from "./nucleusDbBridge";
 
 export class NucleusDBServer {
   private server: http.Server;
