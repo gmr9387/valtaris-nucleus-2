@@ -2,7 +2,7 @@
 // Full file — nucleus run <workflow.json>
 
 import fs from "node:fs";
-import { startWorkflow } from "../../../lib/workflows/runtime";
+import { startNucleusWorkflow } from "../../../lib/workflows/runtime";
 
 export class RunCommand {
   static async run(args: string[]) {
@@ -15,7 +15,7 @@ export class RunCommand {
     const raw = fs.readFileSync(file, "utf-8");
     const workflow = JSON.parse(raw);
 
-    const result = await startWorkflow(workflow, workflow.organizationId);
+    const result = await startNucleusWorkflow(workflow, workflow.organizationId);
     console.log(JSON.stringify(result, null, 2));
   }
 }
