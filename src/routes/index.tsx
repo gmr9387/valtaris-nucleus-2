@@ -41,7 +41,7 @@ function Landing() {
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground">
           Identity, tenancy, audit, telemetry, secrets, connectors, workflows, evidence,
-          decisions, governance. One modular monolith. Built for Claim Clarity, Weaver,
+           decisions, governance. One modular monolith. Built for DualPay, Weaver,
           Glue, Guardian and what comes next.
         </p>
         <div className="mt-10 flex items-center justify-center gap-3">
