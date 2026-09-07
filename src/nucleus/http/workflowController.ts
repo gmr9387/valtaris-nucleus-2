@@ -1,7 +1,7 @@
 // src/nucleus/http/workflowController.ts
 // Full file — Workflow HTTP controller
 
-import { startWorkflow } from "../../lib/workflows/runtime";
+import { startNucleusWorkflow } from "../../lib/workflows/runtime";
 
 export class WorkflowController {
   static async run(req: any, res: any) {
@@ -9,7 +9,7 @@ export class WorkflowController {
       const workflow = req.body.workflow;
       const org = req.identity.getOrganizationId();
 
-      const result = await startWorkflow(workflow, org);
+      const result = await startNucleusWorkflow(workflow, org);
 
       res.json(result);
     } catch (err) {
