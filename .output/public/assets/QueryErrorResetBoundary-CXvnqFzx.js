@@ -1,0 +1,1 @@
+import{i as e,n as t,t as n}from"./jsx-runtime-Dk72oS4N.js";var r=e(t(),1);n();function i(){let e=!1;return{clearReset:()=>{e=!1},reset:()=>{e=!0},isReset:()=>e}}var a=r.createContext(i()),o=()=>r.useContext(a);export{o as t};
