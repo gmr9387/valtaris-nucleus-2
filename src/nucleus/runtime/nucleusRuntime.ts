@@ -1,65 +1,55 @@
-// Phase 27 — Unified Nucleus Runtime
+// src/nucleus/runtime/nucleusRuntime.ts
 
 import { eventBus } from "../events/eventBus";
-import { stateEngine } from "../state/stateEngine";
-import { weaverRuntime } from "../subsystems/weaverRuntime";
-import { guardianRuntime } from "../subsystems/guardianRuntime";
-import { glueRuntime } from "../subsystems/glueRuntime";
-import { dualpayRuntime } from "../subsystems/dualpayRuntime";
-import { contractSimulation } from "../simulation/contractSimulation";
-import { eventSimulation } from "../simulation/eventSimulation";
-import { resourceGraph } from "../resources/resourceGraph";
-import { lineageEngine } from "../lineage/lineageEngine";
-import { telemetryEngine } from "../telemetry/telemetryEngine";
+import { nucleusState } from "../state/stateEngine";
+import { nucleusTelemetry } from "../telemetry/telemetryEngine";
 
 export class NucleusRuntime {
-  constructor() {
-    // Wire eventBus → stateEngine
-    eventBus.subscribe((event) => {
-      stateEngine.applyEvent(event);
+  private subsystem: string;
+  private organizationId: string;
+
+  constructor(subsystem: string = "nucleus", organizationId: string = "dev-org") {
+    this.subsystem = subsystem;
+    this.organizationId = organizationId;
+  }
+
+  boot() {
+    console.log(
+      `Booting NucleusRuntime for subsystem=${this.subsystem}, org=${this.organizationId}`,
+    );
+
+    // FIXED: StateEngine.set() was called as a static method, but set()
+    // is an instance method on the nucleusState singleton, not the class.
+    nucleusState.set(this.organizationId, this.subsystem, "boot", "ok");
+
+    // FIXED (self-correction): recordEvent() takes four positional
+    // arguments (org, subsystem, type, payload) -- it was called here
+    // with a single object, which left `subsystem` undefined inside
+    // recordEvent() and crashed on subsystem.toUpperCase(). Caught by
+    // actually running the boot chain, not by inspection.
+    nucleusTelemetry.recordEvent(this.organizationId, this.subsystem, "runtime.boot", {
+      subsystem: this.subsystem,
+      organizationId: this.organizationId,
+    });
+
+    // FIXED: eventBus.publish() requires four positional arguments
+    // (org, subsystem, type, payload) -- it was being called with a
+    // single object, which would have left subsystem/type/payload
+    // undefined on every boot event.
+    eventBus.publish(this.organizationId, this.subsystem, "nucleus.boot", {
+      timestamp: new Date().toISOString(),
     });
   }
 
-  // Subsystem accessors
-  get weaver() {
-    return weaverRuntime;
-  }
-
-  get guardian() {
-    return guardianRuntime;
-  }
-
-  get glue() {
-    return glueRuntime;
-  }
-
-  get dualpay() {
-    return dualpayRuntime;
-  }
-
-  // Simulation accessors
-  get simulateEvent() {
-    return eventSimulation;
-  }
-
-  get simulateContract() {
-    return contractSimulation;
-  }
-
-  // Resource graph access
-  get resources() {
-    return resourceGraph;
-  }
-
-  // Lineage access
-  get lineage() {
-    return lineageEngine;
-  }
-
-  // Telemetry access
-  get telemetry() {
-    return telemetryEngine;
-  }
+  // REMOVED: weaver/guardian/glue/dualpay accessors and their backing
+  // files (subsystems/weaverRuntime.ts, guardianRuntime.ts, glueRuntime.ts,
+  // dualpayRuntime.ts, subsystemRuntime.ts, subsystems/index.ts) were
+  // deleted -- their only real callers were the 20 orphaned diagnostic
+  // files under verification/, certification/, audit/, stress/, and
+  // orchestration/, which were also deleted. Confirmed by grep across
+  // the full codebase that nothing outside this file referenced these
+  // accessors once those 20 files were gone.
 }
 
+// Legacy singleton compatibility
 export const nucleus = new NucleusRuntime();

@@ -1,0 +1,45 @@
+name: Nucleus Sovereign CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  sovereign-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # FIXED: this ran `npm install` + `npm run ci` (-> `ts-node ...`),
+      # but this repo has no package-lock.json (only bun.lock) and the
+      # CI entrypoint imports "@/..." tsconfig-path aliases plus
+      # extensionless relative TS imports throughout -- neither of which
+      # raw ts-node/Node resolves. A fresh `npm install` also hit real
+      # peer-dependency conflicts in package.json (since fixed) that a
+      # lockfile-driven install had been silently masking locally. bun
+      # is what this project actually installs and runs with everywhere
+      # else (bun.lock is the checked-in lockfile) and resolves both the
+      # path aliases and extensionless imports natively.
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: bun install
+
+      - name: Typecheck
+        run: bun run build
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Test
+        run: bun run test
+
+      - name: Run Sovereign CI
+        run: bun run ci

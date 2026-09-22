@@ -1,35 +1,139 @@
-// Phase 50 — Certification Engine
+// src/nucleus/certification/certificationEngine.ts
+// Unified constitutional certification engine for the entire Valtaris ecosystem.
 
-import { certificationManifest } from "./certificationManifest";
-import { certificationProofs } from "./certificationProofs";
-import { certificationState } from "./certificationState";
+import { nucleusAudit } from "../audit/auditEngine";
+import { nucleusBilling } from "../billing/billingEngine";
+import type { Dynamic } from "../types/dynamic";
+
+export type CertificationCheck = {
+  id: string;
+  org: string;
+  subsystem: string;
+  name: string;
+  description: string;
+  validate: (payload: Dynamic) => boolean;
+  createdAt: number;
+};
+
+export type CertificationResult = {
+  id: string;
+  checkId: string;
+  org: string;
+  subsystem: string;
+  name: string;
+  passed: boolean;
+  payload: Dynamic;
+  timestamp: number;
+};
 
 export class CertificationEngine {
-  async certify() {
-    if (!certificationManifest.enabled) {
-      throw new Error("Certification disabled by manifest");
-    }
+  private checks: Map<string, CertificationCheck> = new Map();
+  private results: CertificationResult[] = [];
 
-    const proofs = [];
+  register(
+    org: string,
+    subsystem: string,
+    name: string,
+    description: string,
+    validate: (payload: Dynamic) => boolean,
+  ) {
+    const id = crypto.randomUUID();
 
-    for (const key of certificationManifest.proofs) {
-      const fn = (certificationProofs as any)[key];
-      if (!fn) throw new Error(`Unknown certification proof: ${key}`);
-
-      const result = await fn();
-      proofs.push({ key, result });
-    }
-
-    certificationState.certified = true;
-    certificationState.lastCertifiedAt = new Date().toISOString();
-    certificationState.proofs = proofs.map((p) => p.key);
-
-    return {
-      certified: certificationState.certified,
-      proofs,
-      lastCertifiedAt: certificationState.lastCertifiedAt,
+    const check: CertificationCheck = {
+      id,
+      org,
+      subsystem,
+      name,
+      description,
+      validate,
+      createdAt: Date.now(),
     };
+
+    this.checks.set(id, check);
+
+    console.log(`[CERT][${subsystem.toUpperCase()}] Registered check: ${name}`);
+
+    return check;
+  }
+
+  run(checkId: string, payload: Dynamic) {
+    const check = this.checks.get(checkId);
+    if (!check) {
+      console.error(`[CERT] Check not found: ${checkId}`);
+      return null;
+    }
+
+    const passed = check.validate(payload);
+
+    const result: CertificationResult = {
+      id: crypto.randomUUID(),
+      checkId,
+      org: check.org,
+      subsystem: check.subsystem,
+      name: check.name,
+      passed,
+      payload,
+      timestamp: Date.now(),
+    };
+
+    this.results.push(result);
+
+    const prefix = `[CERT][${check.subsystem.toUpperCase()}]`;
+    console.log(prefix, `${check.name} → ${passed ? "PASSED" : "FAILED"}`);
+
+    // Audit
+    nucleusAudit.log(
+      check.org,
+      check.subsystem,
+      `certification.check.${check.name}`,
+      "certification-engine",
+      { passed, payload },
+    );
+
+    // Billing (certification checks cost money)
+    nucleusBilling.recordEvent(
+      check.org,
+      check.subsystem,
+      `certification.check.${check.name}`,
+      1,
+      0.0025, // $0.0025 per certification check
+      { passed, payload },
+    );
+
+    return result;
+  }
+
+  /**
+   * Run every registered check with no check-specific payload, for
+   * whole-ecosystem certification sweeps (certifyNucleus()) rather than
+   * validating one specific check's outcome.
+   */
+  certify(payload: Dynamic = {}) {
+    const results = this.getChecks().map((check) => this.run(check.id, payload)!);
+    return {
+      ok: results.every((r) => r.passed),
+      results,
+    };
+  }
+
+  getChecks() {
+    return [...this.checks.values()];
+  }
+
+  getResults() {
+    return [...this.results];
+  }
+
+  getResultsByCheck(checkId: string) {
+    return this.results.filter((r) => r.checkId === checkId);
+  }
+
+  clear() {
+    this.checks.clear();
+    this.results = [];
   }
 }
 
-export const certificationEngine = new CertificationEngine();
+export const nucleusCertification = new CertificationEngine();
+// Alias matching the module-name convention several callers already use.
+export const certificationEngine = nucleusCertification;
