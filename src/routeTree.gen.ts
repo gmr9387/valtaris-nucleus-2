@@ -13,7 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppAuditRouteImport } from './routes/_app.audit'
+import { Route as AppClaimsRouteImport } from './routes/_app.claims'
+import { Route as AppCommandCenterRouteImport } from './routes/_app.command-center'
 import { Route as AppConnectorsRouteImport } from './routes/_app.connectors'
+import { Route as AppContractsRouteImport } from './routes/_app.contracts'
 import { Route as AppCoreRouteImport } from './routes/_app.core'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppDecisionsRouteImport } from './routes/_app.decisions'
@@ -23,6 +26,7 @@ import { Route as AppGovernanceRouteImport } from './routes/_app.governance'
 import { Route as AppOrganizationsRouteImport } from './routes/_app.organizations'
 import { Route as AppProjectsRouteImport } from './routes/_app.projects'
 import { Route as AppSecretsRouteImport } from './routes/_app.secrets'
+import { Route as AppSsoRouteImport } from './routes/_app.sso'
 import { Route as AppTelemetryRouteImport } from './routes/_app.telemetry'
 import { Route as AppUsersRouteImport } from './routes/_app.users'
 import { Route as AppWorkflowsRouteImport } from './routes/_app.workflows'
@@ -49,9 +53,24 @@ const AppAuditRoute = AppAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AppRoute,
 } as any)
+const AppClaimsRoute = AppClaimsRouteImport.update({
+  id: '/claims',
+  path: '/claims',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCommandCenterRoute = AppCommandCenterRouteImport.update({
+  id: '/command-center',
+  path: '/command-center',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppConnectorsRoute = AppConnectorsRouteImport.update({
   id: '/connectors',
   path: '/connectors',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppContractsRoute = AppContractsRouteImport.update({
+  id: '/contracts',
+  path: '/contracts',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCoreRoute = AppCoreRouteImport.update({
@@ -99,6 +118,11 @@ const AppSecretsRoute = AppSecretsRouteImport.update({
   path: '/secrets',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSsoRoute = AppSsoRouteImport.update({
+  id: '/sso',
+  path: '/sso',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppTelemetryRoute = AppTelemetryRouteImport.update({
   id: '/telemetry',
   path: '/telemetry',
@@ -135,7 +159,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/audit': typeof AppAuditRoute
+  '/claims': typeof AppClaimsRoute
+  '/command-center': typeof AppCommandCenterRoute
   '/connectors': typeof AppConnectorsRoute
+  '/contracts': typeof AppContractsRoute
   '/core': typeof AppCoreRoute
   '/dashboard': typeof AppDashboardRoute
   '/decisions': typeof AppDecisionsRoute
@@ -145,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/organizations': typeof AppOrganizationsRoute
   '/projects': typeof AppProjectsRoute
   '/secrets': typeof AppSecretsRoute
+  '/sso': typeof AppSsoRoute
   '/telemetry': typeof AppTelemetryRoute
   '/users': typeof AppUsersRoute
   '/workflows': typeof AppWorkflowsRouteWithChildren
@@ -156,7 +184,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/audit': typeof AppAuditRoute
+  '/claims': typeof AppClaimsRoute
+  '/command-center': typeof AppCommandCenterRoute
   '/connectors': typeof AppConnectorsRoute
+  '/contracts': typeof AppContractsRoute
   '/core': typeof AppCoreRoute
   '/dashboard': typeof AppDashboardRoute
   '/decisions': typeof AppDecisionsRoute
@@ -166,6 +197,7 @@ export interface FileRoutesByTo {
   '/organizations': typeof AppOrganizationsRoute
   '/projects': typeof AppProjectsRoute
   '/secrets': typeof AppSecretsRoute
+  '/sso': typeof AppSsoRoute
   '/telemetry': typeof AppTelemetryRoute
   '/users': typeof AppUsersRoute
   '/workflows': typeof AppWorkflowsRouteWithChildren
@@ -179,7 +211,10 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/audit': typeof AppAuditRoute
+  '/_app/claims': typeof AppClaimsRoute
+  '/_app/command-center': typeof AppCommandCenterRoute
   '/_app/connectors': typeof AppConnectorsRoute
+  '/_app/contracts': typeof AppContractsRoute
   '/_app/core': typeof AppCoreRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/decisions': typeof AppDecisionsRoute
@@ -189,6 +224,7 @@ export interface FileRoutesById {
   '/_app/organizations': typeof AppOrganizationsRoute
   '/_app/projects': typeof AppProjectsRoute
   '/_app/secrets': typeof AppSecretsRoute
+  '/_app/sso': typeof AppSsoRoute
   '/_app/telemetry': typeof AppTelemetryRoute
   '/_app/users': typeof AppUsersRoute
   '/_app/workflows': typeof AppWorkflowsRouteWithChildren
@@ -202,7 +238,10 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/audit'
+    | '/claims'
+    | '/command-center'
     | '/connectors'
+    | '/contracts'
     | '/core'
     | '/dashboard'
     | '/decisions'
@@ -212,6 +251,7 @@ export interface FileRouteTypes {
     | '/organizations'
     | '/projects'
     | '/secrets'
+    | '/sso'
     | '/telemetry'
     | '/users'
     | '/workflows'
@@ -223,7 +263,10 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/audit'
+    | '/claims'
+    | '/command-center'
     | '/connectors'
+    | '/contracts'
     | '/core'
     | '/dashboard'
     | '/decisions'
@@ -233,6 +276,7 @@ export interface FileRouteTypes {
     | '/organizations'
     | '/projects'
     | '/secrets'
+    | '/sso'
     | '/telemetry'
     | '/users'
     | '/workflows'
@@ -245,7 +289,10 @@ export interface FileRouteTypes {
     | '/_app'
     | '/login'
     | '/_app/audit'
+    | '/_app/claims'
+    | '/_app/command-center'
     | '/_app/connectors'
+    | '/_app/contracts'
     | '/_app/core'
     | '/_app/dashboard'
     | '/_app/decisions'
@@ -255,6 +302,7 @@ export interface FileRouteTypes {
     | '/_app/organizations'
     | '/_app/projects'
     | '/_app/secrets'
+    | '/_app/sso'
     | '/_app/telemetry'
     | '/_app/users'
     | '/_app/workflows'
@@ -299,11 +347,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAuditRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/claims': {
+      id: '/_app/claims'
+      path: '/claims'
+      fullPath: '/claims'
+      preLoaderRoute: typeof AppClaimsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/command-center': {
+      id: '/_app/command-center'
+      path: '/command-center'
+      fullPath: '/command-center'
+      preLoaderRoute: typeof AppCommandCenterRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/connectors': {
       id: '/_app/connectors'
       path: '/connectors'
       fullPath: '/connectors'
       preLoaderRoute: typeof AppConnectorsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/contracts': {
+      id: '/_app/contracts'
+      path: '/contracts'
+      fullPath: '/contracts'
+      preLoaderRoute: typeof AppContractsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/core': {
@@ -367,6 +436,13 @@ declare module '@tanstack/react-router' {
       path: '/secrets'
       fullPath: '/secrets'
       preLoaderRoute: typeof AppSecretsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/sso': {
+      id: '/_app/sso'
+      path: '/sso'
+      fullPath: '/sso'
+      preLoaderRoute: typeof AppSsoRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/telemetry': {
@@ -444,7 +520,10 @@ const AppWorkflowsRouteWithChildren = AppWorkflowsRoute._addFileChildren(
 
 interface AppRouteChildren {
   AppAuditRoute: typeof AppAuditRoute
+  AppClaimsRoute: typeof AppClaimsRoute
+  AppCommandCenterRoute: typeof AppCommandCenterRoute
   AppConnectorsRoute: typeof AppConnectorsRoute
+  AppContractsRoute: typeof AppContractsRoute
   AppCoreRoute: typeof AppCoreRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppDecisionsRoute: typeof AppDecisionsRoute
@@ -454,6 +533,7 @@ interface AppRouteChildren {
   AppOrganizationsRoute: typeof AppOrganizationsRoute
   AppProjectsRoute: typeof AppProjectsRoute
   AppSecretsRoute: typeof AppSecretsRoute
+  AppSsoRoute: typeof AppSsoRoute
   AppTelemetryRoute: typeof AppTelemetryRoute
   AppUsersRoute: typeof AppUsersRoute
   AppWorkflowsRoute: typeof AppWorkflowsRouteWithChildren
@@ -461,7 +541,10 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAuditRoute: AppAuditRoute,
+  AppClaimsRoute: AppClaimsRoute,
+  AppCommandCenterRoute: AppCommandCenterRoute,
   AppConnectorsRoute: AppConnectorsRoute,
+  AppContractsRoute: AppContractsRoute,
   AppCoreRoute: AppCoreRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppDecisionsRoute: AppDecisionsRoute,
@@ -471,6 +554,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrganizationsRoute: AppOrganizationsRoute,
   AppProjectsRoute: AppProjectsRoute,
   AppSecretsRoute: AppSecretsRoute,
+  AppSsoRoute: AppSsoRoute,
   AppTelemetryRoute: AppTelemetryRoute,
   AppUsersRoute: AppUsersRoute,
   AppWorkflowsRoute: AppWorkflowsRouteWithChildren,
@@ -488,11 +572,10 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
+import type { createStart } from '@tanstack/react-start'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

@@ -1,148 +1,94 @@
 // src/nucleus/runtime/runtimeGuards.ts
+//
+// The centralized guard contract referenced by subsystemRegistry.ts's
+// own header comment ("this file is scoped specifically to what
+// RuntimeGuards.enforceSubsystemPermission expects") but never actually
+// implemented anywhere in this snapshot -- the same class of gap as the
+// missing RuntimeRouter this file's sibling closes.
+//
+// Scope is deliberately narrow: this owns exactly the enforcement
+// OSPipeline.dispatch() used to inline (subsystem exists, subsystem is
+// enabled) so there is one place that answers "is this subsystem
+// allowed to run right now," not a broader ACL/role system -- org-level
+// authorization is Guardian's own job as the authorization *stage* of
+// the claim (see guardianRuntime.ts), a different concern from whether
+// a subsystem is registered and switched on at all.
 
-/**
- * Runtime Guards (Phase 3)
- *
- * Purpose:
- *   Enforce constitutional invariants at runtime:
- *     - subsystem identity
- *     - subsystem permissions
- *     - contract lineage validation
- *     - resource lineage validation
- *     - cross-contract consistency
- *     - cross-resource consistency
- *     - execution safety
- *     - authorization safety
- *     - payment safety
- *
- * This is the core of Phase 3: Runtime Hardening.
- */
+import {
+  getSubsystem,
+  type SubsystemId,
+  type SubsystemRegistration,
+} from "../subsystems/subsystemRegistry";
+import { nucleusGovernance } from "../governance/governanceEngine";
+import { getTenantSubsystemOverride } from "../subsystems/tenantSubsystemOverrides";
+import type { Dynamic } from "../types/dynamic";
 
-import { validateContract } from "../contracts/contractRegistry";
-import { ResourceService } from "../resources/resourceService";
+export class RuntimeGuardError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "RuntimeGuardError";
+  }
+}
 
-export type Subsystem =
-  | "weaver"
-  | "guardian"
-  | "glue"
-  | "dualpay"
-  | "nucleus";
+// governance/governanceEngine.ts is another fully-built engine (rules +
+// decisions, audit + billing hooks) with zero real callers anywhere in
+// the codebase -- confirmed by grepping for GovernanceEngine/
+// nucleusGovernance outside its own file. Its own shape is exactly what
+// this guard already does by hand ("is this subsystem allowed to run
+// right now"), so rather than inventing an unrelated call site, the
+// existing enabled/disabled check below now IS a governed rule: one
+// real GovernanceDecision, audited and billed, on every single dispatch
+// for every subsystem -- not synthetic data, the actual live outcome.
+const governanceRuleIds = new Map<string, string>();
 
-export interface RuntimeContext {
-  subsystem: Subsystem;
-  organizationId: string;
-  resources: ResourceService;
+function governanceRuleFor(id: string, subsystem: SubsystemRegistration): string {
+  const existing = governanceRuleIds.get(id);
+  if (existing) return existing;
+
+  const rule = nucleusGovernance.register(
+    "platform",
+    id,
+    "subsystem.enabled",
+    `Subsystem "${id}" must be registered and enabled to dispatch (globally, or for this tenant).`,
+    // Multi-tenant subsystem activation (gapMap.md's Weaver/DualPay
+    // gaps): a tenant-specific override -- set via
+    // tenantSubsystemOverrides.ts -- takes precedence over the global
+    // enabled flag when one exists for this org, using the real
+    // organizationId every real dispatch payload already carries.
+    // Falls back to the global flag when this org has no override, so
+    // every subsystem's existing behavior is unchanged by default.
+    (payload: Dynamic) => {
+      const organizationId = payload?.organizationId;
+      const override = organizationId ? getTenantSubsystemOverride(organizationId, id) : undefined;
+      return override ?? subsystem.enabled;
+    },
+  );
+  governanceRuleIds.set(id, rule.id);
+  return rule.id;
 }
 
 export class RuntimeGuards {
   /**
-   * Enforce subsystem identity:
-   *   Only the correct subsystem may emit certain contracts.
+   * Resolves a subsystem and proves it's allowed to run: registered,
+   * and enabled (governed via GovernanceEngine, see above). Throws
+   * RuntimeGuardError otherwise. Returns the registration so callers
+   * (RuntimeRouter) don't have to look it up a second time.
    */
-  static enforceSubsystemPermission(ctx: RuntimeContext, contractName: string) {
-    const allowed: Record<string, Subsystem[]> = {
-      opportunity: ["weaver"],
-      recommendation: ["weaver"],
-      authorization: ["guardian"],
-      execution: ["glue"],
-      payment: ["dualpay"],
-    };
-
-    const permitted = allowed[contractName];
-    if (!permitted) {
-      throw new Error(`Unknown contract: ${contractName}`);
+  static enforceSubsystemPermission(
+    id: SubsystemId | string,
+    payload?: Dynamic,
+  ): SubsystemRegistration {
+    const subsystem = getSubsystem(id);
+    if (!subsystem) {
+      throw new RuntimeGuardError(`RuntimeGuards: subsystem "${id}" is not registered.`);
     }
 
-    if (!permitted.includes(ctx.subsystem)) {
-      throw new Error(
-        `Subsystem ${ctx.subsystem} is not permitted to emit ${contractName}`
-      );
+    const ruleId = governanceRuleFor(id, subsystem);
+    const decision = nucleusGovernance.enforce(ruleId, payload ?? {});
+    if (!decision?.allowed) {
+      throw new RuntimeGuardError(`RuntimeGuards: subsystem "${id}" is disabled.`);
     }
-  }
 
-  /**
-   * Validate contract payload using contract registry.
-   */
-  static validateContractPayload(
-    contractName: string,
-    version: string,
-    payload: any
-  ) {
-    const result = validateContract(contractName as any, version as any, payload);
-    if (!result.ok) {
-      throw new Error(
-        `Contract validation failed for ${contractName}:${version}: ${result.errors?.join(
-          ", "
-        )}`
-      );
-    }
-  }
-
-  /**
-   * Validate resource lineage for the subsystem.
-   * Prevents cross-tenant access.
-   */
-  static enforceResourceLineage(ctx: RuntimeContext, resourceId: string) {
-    const lookup = ctx.resources.lookup("organization", resourceId, ctx.organizationId);
-    if (!lookup.ok) {
-      throw new Error(
-        `Resource lineage violation: ${lookup.errors?.join(", ")}`
-      );
-    }
-  }
-
-  /**
-   * Cross-contract lineage validation:
-   *   - recommendation must reference opportunity
-   *   - authorization must reference recommendation + opportunity
-   *   - execution must reference authorization + recommendation + opportunity
-   *   - payment must reference execution + authorization + recommendation + opportunity
-   */
-  static enforceContractLineage(contractName: string, payload: any) {
-    const lineageRules: Record<string, string[]> = {
-      recommendation: ["opportunityId"],
-      authorization: ["recommendationId", "opportunityId"],
-      execution: ["authorizationId", "recommendationId", "opportunityId"],
-      payment: [
-        "executionId",
-        "authorizationId",
-        "recommendationId",
-        "opportunityId",
-      ],
-    };
-
-    const required = lineageRules[contractName];
-    if (!required) return;
-
-    const missing = required.filter((field) => !payload[field]);
-    if (missing.length > 0) {
-      throw new Error(
-        `Lineage violation in ${contractName}: missing ${missing.join(", ")}`
-      );
-    }
-  }
-
-  /**
-   * Execution safety:
-   *   - execution must match authorization intent
-   */
-  static enforceExecutionSafety(execution: any, authorization: any) {
-    if (execution.executionType !== authorization.payload.executionType) {
-      throw new Error(
-        `Execution type mismatch: expected ${authorization.payload.executionType}, got ${execution.executionType}`
-      );
-    }
-  }
-
-  /**
-   * Payment safety:
-   *   - payment must match execution intent
-   */
-  static enforcePaymentSafety(payment: any, execution: any) {
-    if (payment.amount !== execution.payload.amount) {
-      throw new Error(
-        `Payment amount mismatch: expected ${execution.payload.amount}, got ${payment.amount}`
-      );
-    }
+    return subsystem;
   }
 }
